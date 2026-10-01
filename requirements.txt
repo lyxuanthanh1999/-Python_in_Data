@@ -1,0 +1,7 @@
+configparser==7.2.0
+Faker==40.40.0
+numpy==2.5.3
+pandas==3.0.6
+psycopg2==2.9.13
+python-dateutil==2.9.0.post0
+six==1.17.0
