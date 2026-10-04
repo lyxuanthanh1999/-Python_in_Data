@@ -5,15 +5,22 @@ from variable import (
     query_brand, query_select_brand_id,
     query_seller, query_select_seller_id,
     # Category & Customer
-    query_category, query_select_sub_category_id,
-    query_customer,
+    query_category, query_select_sub_category_id,query_select_main_category_id_name,
+    query_customer,query_select_customer_id,
     # Product
     query_product, query_select_product_id,
     # Promotion & Promotion Product
     query_promotion, query_select_promotion_id,
     query_promotion_product, query_select_promotion_product_id,
+    # truncate table
+    query_truncate_all,
+    # list data for inserting
     categories_tree,
-    query_truncate_all
+    promotion_names,
+    promotion_types,
+    discount_types,
+    genders,
+
 )
 
 from numpy.ma import count
@@ -39,13 +46,12 @@ def insert_brand(cur, count =20):
         name = fake.company()
         country = fake.country()
         created_at = fake.date_time_between(
-            start_date=datetime(2024,1,1),
-            end_date=datetime(2024,12,31)
+            start_date=startDate,
+            end_date=endDate
         )
         brand_data.append((name,country,created_at))
-    # print(brand_data)
     cur.executemany(query_brand,brand_data)
-    cur.execute("SELECT brand_id FROM brand;")
+    cur.execute(query_select_brand_id)
     # brand_ids = [r[0] for r in cur.fetchall()]
     # return brand_ids
     result = []
@@ -61,7 +67,7 @@ def insert_category(cur):
         created_at = fake.date_time_between(start_date=startDate, end_date=endDate)
         main_cat_data.append((main_name,1,None,created_at))
     cur.executemany(query_category,main_cat_data)
-    cur.execute("SELECT category_name,category_id FROM category WHERE level = 1;")
+    cur.execute(query_select_main_category_id_name)
     # lấy danh sách ID mục cha ra để random gắn cho danh mục con
     main_cat_ids = dict(cur.fetchall())
     # chạy lấy value của list sub_category và gắn cho parent_id
@@ -70,11 +76,11 @@ def insert_category(cur):
         parent_id = main_cat_ids[main_name]
 
         for sub_name in sub_list:
-            created_at= fake.date_time_between(start_date=datetime(2024,1,1),end_date=datetime(2024,12,31))
+            created_at= fake.date_time_between(start_date=startDate,end_date=endDate)
             sub_cat_data.append((sub_name,2,parent_id,created_at))
     cur.executemany(query_category,sub_cat_data)
 
-    cur.execute("SELECT category_id FROM category WHERE level = 2;")
+    cur.execute(query_select_sub_category_id)
     sub_cat_ids = [r[0] for r in cur.fetchall()]
     return sub_cat_ids
      
@@ -84,17 +90,15 @@ def insert_seller(cur,count = 50):
     for i in range(count):
         name = fake.company()
         join_date= fake.date_between(
-            start_date=datetime(2024,1,1),
-            end_date=datetime(2024,12,31)
+            start_date=startDate,
+            end_date=endDate
         )
         seller_type = random.choice(['Official', 'Marketplace'])
         rating = round(random.uniform(1.0,5.0),1)
         country = "Vietnam"
         seller_data.append((name,join_date,seller_type,rating,country))
     cur.executemany(query_seller,seller_data)
-    cur.execute("SELECT seller_id FROM seller;")
-    # brand_ids = [r[0] for r in cur.fetchall()]
-    # return brand_ids
+    cur.execute(query_select_seller_id)
     result = []
     for r in cur.fetchall():   # r là từng dòng, ví dụ: (1,)
         result.append(r[0])   # r[0] lấy ra số 1 bên trong tuple
@@ -103,7 +107,6 @@ def insert_seller(cur,count = 50):
 # customer 30000 ~167 orders/customer over 5 months
 def insert_customer(cur,count=30000,batch_size=5000):
     """"""
-    genders = ['Male','Female']
     customer_data = []
     batch = []
     total_inserted = 0
@@ -128,7 +131,7 @@ def insert_customer(cur,count=30000,batch_size=5000):
         batch = []
 
     cur.executemany(query_customer,customer_data)
-    cur.execute("SELECT customer_id FROM customer;")
+    cur.execute(query_select_customer_id)
     customer_ids = [r[0] for r in cur.fetchall()]
     return customer_ids
     
@@ -188,13 +191,6 @@ def insert_product(cur,count=3000,batch_size=1000):
 # promotion	30	~6 campaigns/month
 def insert_promotion(cur,count=30):
     """"""
-    promotion_names = [
-        "Mega Sale", "Flash Sale Giờ Vàng", "Siêu Sale Lương Về", "Black Friday",
-        "Chào Hè Rực Rỡ", "Tết Rộn Ràng", "Back to School", "Cuối Tuần Giảm Sốc",
-        "Tri Ân Khách Hàng", "Mid-Year Sale", "Đại Tiệc Mua Sắm", "Sinh Nhật Rộn Ràng"
-    ]
-    promotion_types = ['product', 'category', 'seller', 'flash_sale']
-    discount_types = ['percentage', 'fixed_amount']
     
     promotions_data = []
     for i in range(count):
