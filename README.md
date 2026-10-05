@@ -23,9 +23,11 @@ Dự án Data Engineering xây dựng hệ cơ sở dữ liệu mẫu cho hệ t
 ```text
 Project3/
 ├── config.py             # Module đọc cấu hình kết nối database từ file database.ni
+├── config_engine.py      # Module tạo SQLAlchemy Engine kết nối PostgreSQL
 ├── connect.py            # Kiểm tra trạng thái kết nối tới PostgreSQL
 ├── create_table.py       # Script tạo cấu trúc toàn bộ bảng (DDL)
-├── insert_value.py       # Script sinh và nạp dữ liệu giả lập (Mock data generation)
+├── insert_value.py       # Script sinh và nạp dữ liệu bằng Psycopg2 thuần
+├── insert_value_pandas.py# Script sinh và nạp dữ liệu bằng Pandas + SQLAlchemy
 ├── variable.py           # Quản lý tập trung SQL queries, DDL, DML và dữ liệu cố định
 ├── ecommerce.sql         # Bộ câu truy vấn SQL kiểm tra, xác thực số lượng dữ liệu
 ├── requirements.txt      # Danh sách thư viện phụ thuộc của Python

@@ -19,7 +19,7 @@ from variable import (
     promotion_names,
     promotion_types,
     discount_types,
-    genders,
+    genders,VN_PREFIXES,unique_suffixes
 
 )
 
@@ -114,7 +114,7 @@ def insert_customer(cur,count=30000,batch_size=5000):
         gender = random.choice(genders)
         name = fake.name_male() if gender == 'Male' else fake.name_female()
         email = f"user_{i}_{uuid.uuid4().hex[:6]}@gmail.com"
-        phone = f"09({i:08d})"
+        phone = f"{random.choice(VN_PREFIXES)}{unique_suffixes[i]}"
         address = fake.street_address()
         city = fake.city()
         created_at = fake.date_time_between(start_date=startDate, end_date=endDate)

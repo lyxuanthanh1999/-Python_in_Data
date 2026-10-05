@@ -1,3 +1,4 @@
+from faker.generator import random
 from datetime import datetime
 create_table_commands = (
         """
@@ -274,3 +275,10 @@ promotion_types = ['product', 'category', 'seller', 'flash_sale']
 discount_types = ['percentage', 'fixed_amount']
 genders = ['Male','Female']
 
+VN_PREFIXES = [
+    '090', '091', '092', '093', '094', '096', '097', '098',
+    '086', '088', '089', '081', '082', '083', '085',
+    '070', '076', '077', '078', '079',
+    '032', '033', '035', '036', '037', '038', '039'
+]
+unique_suffixes = random.sample(range(1000000, 10000000), 30000)
