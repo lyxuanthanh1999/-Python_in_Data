@@ -1,0 +1,14 @@
+[project]
+name = "project3"
+version = "0.1.0"
+requires-python = ">=3.14"
+dependencies = [
+    "configparser==7.2.0",
+    "faker==40.40.0",
+    "numpy==2.5.3",
+    "pandas==3.0.6",
+    "psycopg2==2.9.13",
+    "python-dateutil==2.9.0.post0",
+    "six==1.17.0",
+    "sqlalchemy==2.1.3",
+]

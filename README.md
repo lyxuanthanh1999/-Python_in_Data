@@ -30,7 +30,8 @@ Project3/
 ├── insert_value_pandas.py# Script sinh và nạp dữ liệu bằng Pandas + SQLAlchemy
 ├── variable.py           # Quản lý tập trung SQL queries, DDL, DML và dữ liệu cố định
 ├── ecommerce.sql         # Bộ câu truy vấn SQL kiểm tra, xác thực số lượng dữ liệu
-├── requirements.txt      # Danh sách thư viện phụ thuộc của Python
+├── pyproject.toml        # Cấu hình dự án và dependencies (quản lý bằng uv)
+├── uv.lock               # Khóa chính xác phiên bản các gói phụ thuộc
 └── README.md             # Tài liệu hướng dẫn dự án
 ```
 
@@ -43,7 +44,7 @@ Project3/
 | **`brand`** | 20 | Thương hiệu hàng hóa, tên unique |
 | **`category`** | 25 | 5 danh mục chính (Level 1) & 20 danh mục con (Level 2) |
 | **`seller`** | 50 | Nhà bán lẻ (Official, Marketplace) tại Việt Nam |
-| **`customer`** | 30,000 | Khách hàng với email và phone unique, nạp theo batch 5,000 |
+| **`customer`** | 30,000 | Khách hàng với email và phone unique (chuẩn VN), nạp theo batch 5,000 |
 | **`product`** | 3,000 | Sản phẩm liên kết Category, Brand, Seller kèm SKU unique |
 | **`promotion`** | 30 | Chiến dịch khuyến mãi (percentage, fixed_amount) |
 | **`promotion_product`**| 500 | Liên kết Promo - Product, trung bình 15-18 sản phẩm / promo |
@@ -54,20 +55,14 @@ Project3/
 
 ## 🚀 Hướng dẫn Cài đặt & Khởi chạy
 
-### 1. Cài đặt môi trường ảo Python
+Dự án sử dụng **[uv](https://docs.astral.sh/uv/)** — công cụ quản lý package và virtual environment bằng Rust siêu tốc.
+
+### 1. Đồng bộ môi trường và thư viện với `uv`
+
+Chỉ cần một lệnh duy nhất, `uv` sẽ tự động tạo virtual environment và cài đặt toàn bộ dependencies trong nháy mắt:
 
 ```bash
-# Tạo môi trường ảo
-python3 -m venv .venv
-
-# Kích hoạt môi trường ảo
-# Trên macOS / Linux:
-source .venv/bin/activate
-# Trên Windows:
-# .venv\Scripts\activate
-
-# Cài đặt các thư viện cần thiết
-pip install -r requirements.txt
+uv sync
 ```
 
 ### 2. Cấu hình kết nối PostgreSQL
@@ -86,21 +81,32 @@ port=5432
 ### 3. Kiểm tra kết nối
 
 ```bash
-python connect.py
+uv run python connect.py
+# hoặc kiểm tra engine SQLAlchemy:
+uv run python config_engine.py
 ```
 
 ### 4. Tạo bảng trong Database
 
 ```bash
-python create_table.py
+uv run python create_table.py
 ```
 
 ### 5. Nạp dữ liệu giả lập (Data Ingestion)
 
-```bash
-python insert_value.py
-```
-> **Lưu ý**: Script `insert_value.py` đã tích hợp hàm `truncate_all_tables(cur)`. Mỗi lần chạy, hệ thống sẽ tự động làm sạch dữ liệu cũ và reset ID tự tăng về 1, đảm bảo không bị lỗi trùng lặp dữ liệu (`duplicate key`).
+Bạn có thể lựa chọn 1 trong 2 phiên bản để chạy:
+
+- **Cách 1: Nạp bằng Psycopg2 thuần (Tối ưu hiệu năng SQL):**
+  ```bash
+  uv run python insert_value.py
+  ```
+
+- **Cách 2: Nạp bằng Pandas + SQLAlchemy (DataFrame pipeline):**
+  ```bash
+  uv run python insert_value_pandas.py
+  ```
+
+> **Lưu ý**: Cả 2 script đều đã tích hợp hàm `truncate_all_tables()`. Mỗi lần chạy, hệ thống sẽ tự động làm sạch dữ liệu cũ và reset ID tự tăng (`RESTART IDENTITY CASCADE`) về 1, đảm bảo không bao giờ bị lỗi trùng lặp dữ liệu (`duplicate key`).
 
 ---
 
